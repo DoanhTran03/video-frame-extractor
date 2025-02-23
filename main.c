@@ -28,8 +28,8 @@ void save_frame_as_ppm(AVFrame *frame, int frame_num, int width, int height) {
     printf("✅ Saved PPM frame %d -> %s\n", frame_num, filename);
 }
 
-/* Function to save a PGM image converted from PPM */
-void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, int height) {
+/* Function to save a PGM image converted from PPM using custom weights */
+void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, int height, float x_cof, float y_cof, float z_cof) {
     char filename[1024];
     snprintf(filename, sizeof(filename), "input.pgm", frame_num);
 
@@ -52,11 +52,11 @@ void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, in
         uint8_t *rgb_row = rgb_frame->data[0] + y * rgb_frame->linesize[0];
         uint8_t *gray_row = grayscale_buffer + y * width;
 
-        for (int x = 0; x < width; x++) {
-            uint8_t r = rgb_row[x * 3];
-            uint8_t g = rgb_row[x * 3 + 1];
-            uint8_t b = rgb_row[x * 3 + 2];
-            gray_row[x] = (uint8_t)(0.299 * r + 0.587 * g + 0.114 * b);
+        for (int x_index = 0; x_index < width; x_index++) {
+            uint8_t r = rgb_row[x_index * 3];
+            uint8_t g = rgb_row[x_index * 3 + 1];
+            uint8_t b = rgb_row[x_index * 3 + 2];
+            gray_row[x_index] = (uint8_t)(x_cof * r + y_cof * g + z_cof * b);
         }
     }
 
@@ -78,13 +78,16 @@ static void start_dpppm(GtkWidget *widget, gpointer data) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s <input_video> <frame_number>\n", argv[0]);
+    if (argc < 6) {
+        fprintf(stderr, "Usage: %s <input_video> <frame_number> <x_cof> <y_cof> <z_cof>\n", argv[0]);
         return 1;
     }
 
     const char *input_file = argv[1];
     int target_frame = atoi(argv[2]);
+    float x_cof = atof(argv[3]);
+    float y_cof = atof(argv[4]);
+    float z_cof = atof(argv[5]);
 
     if (target_frame < 0) {
         fprintf(stderr, "❌ Error: Frame number cannot be negative.\n");
@@ -183,7 +186,7 @@ int main(int argc, char **argv) {
                               codec_ctx->height, rgb_frame->data, rgb_frame->linesize);
 
                     save_frame_as_ppm(rgb_frame, frame_num, codec_ctx->width, codec_ctx->height);
-                    save_frame_as_pgm_from_ppm(rgb_frame, frame_num, codec_ctx->width, codec_ctx->height);
+                    save_frame_as_pgm_from_ppm(rgb_frame, frame_num, codec_ctx->width, codec_ctx->height, x_cof, y_cof, z_cof);
 
                     // Start dppgm and dpppm
                     start_dppgm(NULL, NULL);
