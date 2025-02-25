@@ -4,7 +4,8 @@ A video frame extractor that extract selected frame and produce 2 images (colore
 
 # Team member
 
-Ngoc Doanh Tran
+Ngoc Doanh Tran - tran97@uwindsor.ca - 110092702
+Hai Nguyen - nguyen4e@uwindsor.ca - 110092844
 
 # #Demo
 
