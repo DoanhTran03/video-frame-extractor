@@ -14,7 +14,7 @@ void save_frame_as_ppm(AVFrame *frame, int frame_num, int width, int height) {
 
     FILE *file = fopen(filename, "wb");
     if (!file) {
-        fprintf(stderr, "❌ Could not open %s\n", filename);
+        fprintf(stderr, " Could not open %s\n", filename);
         return;
     }
 
@@ -25,7 +25,7 @@ void save_frame_as_ppm(AVFrame *frame, int frame_num, int width, int height) {
     }
 
     fclose(file);
-    printf("✅ Saved PPM frame %d -> %s\n", frame_num, filename);
+    printf(" Saved PPM frame %d -> %s\n", frame_num, filename);
 }
 
 /* Function to save a PGM image converted from PPM using custom weights */
@@ -35,7 +35,7 @@ void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, in
 
     FILE *file = fopen(filename, "wb");
     if (!file) {
-        fprintf(stderr, "❌ Could not open %s\n", filename);
+        fprintf(stderr, " Could not open %s\n", filename);
         return;
     }
 
@@ -43,7 +43,7 @@ void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, in
 
     uint8_t *grayscale_buffer = (uint8_t *)malloc(width * height);
     if (!grayscale_buffer) {
-        fprintf(stderr, "❌ Memory allocation failed\n");
+        fprintf(stderr, " Memory allocation failed\n");
         fclose(file);
         return;
     }
@@ -64,7 +64,7 @@ void save_frame_as_pgm_from_ppm(AVFrame *rgb_frame, int frame_num, int width, in
 
     free(grayscale_buffer);
     fclose(file);
-    printf("✅ Saved PGM frame %d -> %s\n", frame_num, filename);
+    printf(" Saved PGM frame %d -> %s\n", frame_num, filename);
 }
 
 /* Function to start dppgm */
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     float z_cof = atof(argv[5]);
 
     if (target_frame < 0) {
-        fprintf(stderr, "❌ Error: Frame number cannot be negative.\n");
+        fprintf(stderr, "Error: Frame number cannot be negative.\n");
         return 1;
     }
 
@@ -106,12 +106,12 @@ int main(int argc, char **argv) {
     avformat_network_init();
 
     if (avformat_open_input(&fmt_ctx, input_file, NULL, NULL) < 0) {
-        fprintf(stderr, "❌ Could not open input file %s\n", input_file);
+        fprintf(stderr, "Could not open input file %s\n", input_file);
         return 1;
     }
 
     if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
-        fprintf(stderr, "❌ Could not retrieve stream info\n");
+        fprintf(stderr, "Could not retrieve stream info\n");
         return 1;
     }
 
@@ -123,37 +123,37 @@ int main(int argc, char **argv) {
     }
 
     if (video_stream_index == -1) {
-        fprintf(stderr, "❌ No video stream found\n");
+        fprintf(stderr, "No video stream found\n");
         return 1;
     }
 
     AVCodecParameters *codec_params = fmt_ctx->streams[video_stream_index]->codecpar;
     codec = avcodec_find_decoder(codec_params->codec_id);
     if (!codec) {
-        fprintf(stderr, "❌ Unsupported codec\n");
+        fprintf(stderr, "Unsupported codec\n");
         return 1;
     }
 
     codec_ctx = avcodec_alloc_context3(codec);
     if (!codec_ctx) {
-        fprintf(stderr, "❌ Could not allocate codec context\n");
+        fprintf(stderr, "Could not allocate codec context\n");
         return 1;
     }
 
     if (avcodec_parameters_to_context(codec_ctx, codec_params) < 0) {
-        fprintf(stderr, "❌ Could not copy codec parameters\n");
+        fprintf(stderr, "Could not copy codec parameters\n");
         return 1;
     }
 
     if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
-        fprintf(stderr, "❌ Could not open codec\n");
+        fprintf(stderr, "Could not open codec\n");
         return 1;
     }
 
     frame = av_frame_alloc();
     pkt = av_packet_alloc();
     if (!frame || !pkt) {
-        fprintf(stderr, "❌ Could not allocate memory\n");
+        fprintf(stderr, "Could not allocate memory\n");
         return 1;
     }
 
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
                              SWS_BILINEAR, NULL, NULL, NULL);
 
     if (!sws_ctx) {
-        fprintf(stderr, "❌ Could not initialize the conversion context\n");
+        fprintf(stderr, "Could not initialize the conversion context\n");
         return 1;
     }
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 
             while (avcodec_receive_frame(codec_ctx, frame) == 0) {
                 if (frame_num == target_frame) {
-                    printf("🎯 Target frame %d reached!\n", frame_num);
+                    printf("Target frame %d reached!\n", frame_num);
 
                     sws_scale(sws_ctx, (const uint8_t *const *)frame->data, frame->linesize, 0,
                               codec_ctx->height, rgb_frame->data, rgb_frame->linesize);
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
         av_packet_unref(pkt);
     }
 
-    fprintf(stderr, "❌ Error: Frame number %d was not found in the video.\n", target_frame);
+    fprintf(stderr, "Error: Frame number %d was not found in the video.\n", target_frame);
 
     av_packet_free(&pkt);
     av_frame_free(&frame);

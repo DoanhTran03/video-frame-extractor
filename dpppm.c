@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define IMAGE_FILE "input.ppm"  // Change this to your PPM file
+#define IMAGE_FILE "input.ppm"
 
 // Function to load a PPM (P6) file and return an RGB buffer
 static uint8_t *load_ppm(const char *filename, int *width, int *height) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        g_printerr("❌ Failed to open file: %s\n", filename);
+        g_printerr("Failed to open file: %s\n", filename);
         return NULL;
     }
 
@@ -16,7 +16,7 @@ static uint8_t *load_ppm(const char *filename, int *width, int *height) {
     char magic[3];
     int max_val;
     if (fscanf(file, "%2s\n%d %d\n%d\n", magic, width, height, &max_val) != 4 || strcmp(magic, "P6") != 0) {
-        g_printerr("❌ Invalid or unsupported PPM format\n");
+        g_printerr("Invalid or unsupported PPM format\n");
         fclose(file);
         return NULL;
     }
@@ -25,7 +25,7 @@ static uint8_t *load_ppm(const char *filename, int *width, int *height) {
     int rowstride = (*width) * 3;  // 3 bytes per pixel (RGB)
     uint8_t *rgb_data = (uint8_t *)malloc(rowstride * (*height));
     if (!rgb_data) {
-        g_printerr("❌ Memory allocation failed\n");
+        g_printerr("Memory allocation failed\n");
         fclose(file);
         return NULL;
     }
@@ -45,7 +45,7 @@ static GdkTexture *create_scaled_texture(const char *filename, int target_width,
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data(rgb_data, GDK_COLORSPACE_RGB, FALSE, 8,
                                                  width, height, width * 3, free, NULL);
     if (!pixbuf) {
-        g_printerr("❌ Failed to create GdkPixbuf\n");
+        g_printerr("Failed to create GdkPixbuf\n");
         return NULL;
     }
 
@@ -75,7 +75,7 @@ static void on_activate(GtkApplication *app, gpointer user_data) {
     // Load and scale the image
     texture = create_scaled_texture(IMAGE_FILE, window_width, window_height);
     if (!texture) {
-        g_printerr("❌ Failed to load and scale image\n");
+        g_printerr("Failed to load and scale image\n");
         return;
     }
 
